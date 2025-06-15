@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heart Disease Prediction Report</title>
+  <link rel="stylesheet" href="resultstyle.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Heart Disease Prediction Report</h2>
+
+    <div class="report">
+      <h3>Patient Details</h3>
+      <p><strong>Age:</strong> <span id="age"></span></p>
+      <p><strong>Sex:</strong> <span id="sex"></span></p>
+      <p><strong>Smoking:</strong> <span id="smoking"></span></p>
+      <p><strong>Physical Activity Level:</strong> <span id="physicalActivity"></span></p>
+      <p><strong>BMI:</strong> <span id="bmi"></span></p>
+      <p><strong>Chest Pain Type:</strong> <span id="chestPainType"></span></p>
+      <p><strong>Exercise Induced Angina:</strong> <span id="exerciseAngina"></span></p>
+
+      <h3>Prediction Results</h3>
+      <p><strong>Prediction:</strong> <span id="prediction"></span></p>
+      <p><strong>Top Risk Factor:</strong> <span id="risk-factor"></span></p>
+      <p><strong>Health Suggestion:</strong> <span id="suggestion"></span></p>
+    </div>
+
+    <div id="doctor-link" style="display: none;">
+      <a href="https://www.practo.com/hyderabad/cardiologist" target="_blank">Book Doctor Appointment</a><br>
+  </div>
+
+    <a href="form.html">Back to Home</a>
+  </div>
+  
+
+  <script>
+    const prediction = sessionStorage.getItem("prediction");
+    const riskFactor = sessionStorage.getItem("risk_factor");
+    const suggestion = sessionStorage.getItem("suggestion");
+    const userInput = JSON.parse(sessionStorage.getItem("user_input") || "{}");
+
+    document.getElementById("age").innerText = userInput["Age"];
+    document.getElementById("sex").innerText = userInput["Sex"];
+    document.getElementById("smoking").innerText = userInput["Smoking"];
+    document.getElementById("physicalActivity").innerText = userInput["Physical_Activity_Level"];
+    document.getElementById("bmi").innerText = userInput["BMI"];
+    document.getElementById("chestPainType").innerText = userInput["Chest_Pain_Type"];
+    document.getElementById("exerciseAngina").innerText = userInput["Exercise_Induced_Angina"];
+
+    document.getElementById("prediction").innerText =
+      prediction === "1" ? "❗ Heart Disease Detected" : "✅ No Heart Disease";
+
+    document.getElementById("risk-factor").innerText = prediction === "1" ? riskFactor : "N/A";
+    document.getElementById("suggestion").innerText =
+      prediction === "1" ? suggestion : "Keep up the healthy lifestyle!";
+      
+    
+      if (prediction === "1") {
+        document.getElementById("doctor-link").style.display = "block";
+    }      
+  </script>
+</body>
+</html>

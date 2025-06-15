@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>User Form - Heart Disease Prediction</title>
+  <link rel="stylesheet" href="user_formstyle.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Heart Disease Prediction</h2>
+    <form id="prediction-form" autocomplete="off">
+      <div class="form-group"><label>Age</label><input type="number" name="Age" min="20" max="100" required></div>
+      <div class="form-group"><label>Sex</label>
+        <select name="Sex" required>
+          <option value="">-- Select --</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Smoking</label>
+        <select name="Smoking" required>
+          <option value="">-- Select --</option>
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Physical Activity Level</label>
+        <select name="Physical_Activity_Level" required>
+          <option value="">-- Select --</option>
+          <option value="Low">Low</option>
+          <option value="Moderate">Moderate</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <div class="label-wrapper">
+          <label for="bmi">BMI</label>
+          <span class="tooltip-text">Body Mass Index (10.0 - 50.0)</span>
+        </div>
+        <input type="number" name="BMI" id="bmi" step="0.1" min="10" max="50" required>
+      </div>
+      
+
+      <div class="form-group"><label>Chest Pain Type</label>
+        <select name="Chest_Pain_Type" required>
+          <option value="">-- Select --</option>
+          <option value="Non-Anginal" title="Chest pain not related to the heart, often due to other causes">Non-Anginal</option>
+          <option value="Asymptomatic" title="No visible symptoms or chest pain, often detected during routine check-ups.">Asymptomatic</option>
+          <option value="Atypical Angina" title="Unusual chest discomfort not following classic angina patterns.">Atypical Angina</option>
+          <option value="Typical Angina" title="Predictable chest pain due to reduced blood flow to the heart">Typical Angina</option>
+        </select>
+      </div>
+
+      <div class="form-group"><label>Exercise Induced Angina</label>
+        <select name="Exercise_Induced_Angina" required>
+          <option value="">-- Select --</option>
+          <option value="1">Yes</option>
+          <option value="0">No</option>
+        </select>
+      </div>
+      <button type="submit" class="predict-btn">Predict</button>
+    </form>
+    <div id="result-message"></div>
+  </div>
+
+  <script>
+    document.querySelector("#prediction-form").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      let inputs = document.querySelectorAll("input, select");
+      let data = {};
+
+      inputs.forEach(input => {
+        if (input.value && input.value !== "-- Select --") {
+          data[input.name] = isNaN(input.value) ? input.value : parseFloat(input.value);
+        }
+      });
+
+      console.log("📤 Sending data:", data);
+
+      try {
+        let response = await fetch("http://127.0.0.1:5000/predict_model2", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ features: data })
+        });
+
+        let result = await response.json();
+        console.log("📥 Response:", result);
+
+        if (result.error) {
+          alert("❌ Error: " + result.error);
+        } else {
+          sessionStorage.setItem("prediction", result.prediction);
+          sessionStorage.setItem("risk_factor", result.top_risk_factor);
+          sessionStorage.setItem("suggestion", result.risk_suggestion);
+          sessionStorage.setItem("user_input", JSON.stringify(data));
+          window.location.href = "result1.html";
+        }
+      } catch (error) {
+        console.error("❌ JavaScript Error:", error);
+        alert("❌ Prediction failed. Please try again.");
+      }
+    });
+  </script>
+</body>
+</html>

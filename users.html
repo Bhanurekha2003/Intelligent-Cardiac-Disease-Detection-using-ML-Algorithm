@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="usersstyle.css">
+</head>
+<body>
+  <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+  <div class="sidebar" id="sidebar">
+    <button onclick="showSection('usersSection', this)" class="active">User List</button>
+    <button onclick="showSection('confusionSection', this)">Confusion Matrix</button>
+    <button onclick="showSection('metricsSection', this)">Metrics</button>
+    <button onclick="showSection('featuresSection', this)">Feature Importance</button>
+  </div>
+
+  <div class="main" id="main-content">
+    <div id="usersSection">
+      <h2>User List</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Username</th><th>Phone</th><th>Email</th><th>Place</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+
+    <div id="confusionSection" style="display: none">
+      <h2>Confusion Matrix</h2>
+      <img src="http://localhost:5000/files/model_1_confusion_matrix.png" width="600" />
+      <img src="http://localhost:5000/files/model_2_confusion_matrix.png" width="600" />
+    </div>
+
+    <div id="metricsSection" style="display: none">
+      <h2>Classification Metrics</h2>
+      <img src="http://localhost:5000/files/model_1_classification_metrics.png" width="600" />
+      <img src="http://localhost:5000/files/model_2_classification_metrics.png" width="600" />
+    </div>
+
+    <div id="featuresSection" style="display: none">
+      <h2>Feature Importance</h2>
+      <img src="http://localhost:5000/files/model_1_feature_importance.png" width="600" />
+      <img src="http://localhost:5000/files/model_2_feature_importance.png" width="600" />
+    </div>
+  </div>
+
+  <script>
+    async function fetchUsers() {
+      try {
+        const response = await fetch("http://localhost:5000/users");
+        const users = await response.json();
+        const tableBody = document.getElementById("userTableBody");
+        tableBody.innerHTML = "";
+
+        users.forEach(user => {
+          const row = `<tr>
+              <td>${user.id}</td>
+              <td>${user.name}</td>
+              <td>${user.username}</td>
+              <td>${user.phone}</td>
+              <td>${user.email || "N/A"}</td>
+              <td>${user.place || "N/A"}</td>
+              <td><button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button></td>
+          </tr>`;
+          tableBody.innerHTML += row;
+        });
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm("Are you sure you want to delete this user?")) return;
+      try {
+        const response = await fetch(`http://localhost:5000/delete_user/${userId}`, {
+          method: "DELETE",
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("User deleted successfully!");
+          fetchUsers();
+        } else {
+          alert("Error: " + (result.error || "Failed to delete user"));
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
+    }
+
+    function showSection(id, btn) {
+      const sections = ["usersSection", "confusionSection", "metricsSection", "featuresSection"];
+      sections.forEach(section => {
+        document.getElementById(section).style.display = section === id ? "block" : "none";
+      });
+
+      document.querySelectorAll(".sidebar button").forEach(button => {
+        button.classList.remove("active");
+      });
+      btn.classList.add("active");
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      const main = document.getElementById("main-content");
+      sidebar.classList.toggle("open");
+      main.classList.toggle("shifted");
+    }
+
+    window.onload = fetchUsers;
+  </script>
+</body>
+</html>

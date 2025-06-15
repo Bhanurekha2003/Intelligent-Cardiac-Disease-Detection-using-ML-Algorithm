@@ -1,0 +1,177 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Disease Prediction</title>
+    <link rel="stylesheet" href="styleform.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Heart Disease Prediction</h2>
+        <form id="prediction-form" autocomplete="off">
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="age">Age</label>
+                </div>
+                <input type="number" name="Age_In_Days" id="age" min="20" max="100" required>
+            </div>
+
+            <div class="form-group">
+                <label>Sex</label>
+                <select name="Sex" required>
+                    <option value="">-- Select --</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="chest-pain">Chest Pain Type</label>
+                    <span class="tooltip-text">Choose the type of chest pain <br>the patient experiences</span>
+                </div>
+                <select name="ChestPainType" id="chest-pain" required>
+                    <option value="">-- Select --</option>
+                    <option value="ATA">Atypical Angina</option>
+                    <option value="NAP">Non-Anginal</option>
+                    <option value="ASY">Asymptomatic</option>
+                    <option value="TA">Typical Agina</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Resting Blood Pressure</label>
+                <input type="number" name="RestingBP" min="90" max="200" required>
+            </div>
+
+            <div class="form-group">
+                <label>Resting ECG</label>
+                <select name="RestingECG" required>
+                    <option value="">-- Select --</option>
+                    <option value="Normal">Normal</option>
+                    <option value="ST">ST</option>
+                    <option value="LVH">LVH</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum Heart Rate</label>
+                <input type="number" name="MaxHR" min="60" max="220" required>
+            </div>
+
+            <div class="form-group">
+                <label>Exercise Angina</label>
+                <select name="ExerciseAngina" required>
+                    <option value="">-- Select --</option>
+                    <option value="Y">Yes</option>
+                    <option value="N">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="oldpeak">Oldpeak</label>
+                    <span class="tooltip-text">ST depression induced by <br> exercise relative to rest (range between 0 to 6.2)</span>
+                </div>
+                <input type="number" step="0.1" name="Oldpeak" id="oldpeak" min="0" max="6.2" required>
+            </div>
+
+            <div class="form-group">
+                <label title="The slope of the peak exercise ST segment (Up = rising, Flat = no change).">ST Slope</label>
+                <select name="ST_Slope" required>
+                    <option value="">-- Select --</option>
+                    <option value="Up">Up</option>
+                    <option value="Flat">Flat</option>
+                    <option value="Down">Down</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="slp">SLP</label>
+                    <span class="tooltip-text">Slope of the peak exercise <br> ST segment (0, 1, or 2)</span>
+                </div>
+                <input type="number" name="slp" id="slp" min="0" max="2" required>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="caa">CAA</label>
+                    <span class="tooltip-text">Number of major vessels <br> colored by fluoroscopy (0-4)</span>
+                </div>
+                <input type="number" name="caa" id="caa" min="0" max="4" required>
+            </div>
+
+            <div class="form-group">
+                <div class="label-wrapper">
+                    <label for="thall">Thallium Stress Test (Thall)</label>
+                    <span class="tooltip-text">shows how well blood flows to your heart during activity</span>
+                </div>
+                <select name="thall" id="thall" required>
+                    <option value="">-- Select --</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+            </div>
+
+            <br>
+            <button type="submit" class="predict-btn">Predict</button>
+        </form>
+
+        <br><br>
+        <div id="report-section">
+            <div> no report ?</div>
+            <a href="user_form.html">Click Here</a>
+        </div>
+
+        <!-- Result message will be displayed here -->
+        <div id="result-message"></div>
+    </div>
+
+    <script>
+    document.querySelector("#prediction-form").addEventListener("submit", async function(event) {
+        event.preventDefault(); // Prevent page refresh
+
+        let inputs = document.querySelectorAll("input, select");
+        let data = {};
+        let queryParams = [];
+
+        inputs.forEach(input => {
+            if (input.value && input.value !== "-- Select --") {
+                data[input.name] = isNaN(input.value) ? input.value : parseFloat(input.value);
+                queryParams.push(`${input.name}=${encodeURIComponent(input.value)}`);
+            }
+        });
+
+        console.log("🔼 Sending Data to Flask:", JSON.stringify({ features: data }));
+
+        try {
+            let response = await fetch("http://127.0.0.1:5000/predict_model1", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ features: data })
+            });
+
+            let result = await response.json();
+            console.log("⬇ Response from Flask:", result);
+
+            if (result.error) {
+                alert("❌ Error: " + result.error);
+            } else {
+                queryParams.push(`prediction=${result.prediction}`);
+                queryParams.push(`risk_factor=${encodeURIComponent(result.top_risk_factor)}`);
+                queryParams.push(`suggestion=${encodeURIComponent(result.risk_suggestion)}`);
+
+                window.location.href = `result.html?${queryParams.join("&")}`;
+            }
+        } catch (error) {
+            console.error("❌ JavaScript Error:", error);
+            alert("❌ Error occurred while making a prediction. Check console.");
+        }
+    });
+    </script>
+</body>
+</html>

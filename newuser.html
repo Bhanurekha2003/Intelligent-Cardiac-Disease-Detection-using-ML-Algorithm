@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="newuser.css">
+    <script>
+        async function registerUser(event) {
+            event.preventDefault();
+
+            const userData = {
+                name: document.getElementById("name").value.trim(),
+                username: document.getElementById("username").value.trim(),
+                phone: document.getElementById("phone").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                place: document.getElementById("place").value.trim(),
+                password: document.getElementById("password").value
+            };
+
+            // Validation: Ensure required fields are filled
+            if (!userData.name || !userData.username || !userData.phone || !userData.password) {
+                alert("Please fill in all required fields.");
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(userData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert("Registration successful!");
+                    window.location.href = "login.html";  // Redirect after success
+                } else {
+                    alert("Error: " + (result.error || "Registration failed"));
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again later.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>User Registration</h2>
+        <form onsubmit="registerUser(event)">
+            <div class="form-group">
+                
+                <input type="text" id="name" placeholder="Full name" required>
+            </div><br>
+
+            <div class="form-group">
+
+                <input type="text" id="username" placeholder="Username" required>
+            </div><br>
+
+            <div class="form-group">
+
+                <input type="number" id="phone" placeholder="Phone" required>
+            </div><br>
+
+            <div class="form-group">
+
+                <input type="email" id="email" placeholder="Email (optional)">
+            </div><br>
+
+            <div class="form-group">
+
+                <input type="text" id="place" placeholder="Place">
+            </div><br>
+
+            <div class="form-group">
+
+                <input type="password" id="password" placeholder="Password" required>
+            </div><br>
+
+            <button type="submit" class="login-btn">Register</button>
+        </form>
+    </div>
+</body>
+</html>

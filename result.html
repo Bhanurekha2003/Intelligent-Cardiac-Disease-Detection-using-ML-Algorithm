@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Report</title>
+    <link rel="stylesheet" href="resultstyle.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Heart Disease Prediction Report</h2>
+
+        <div class="report">
+            <h3>Patient Details</h3>
+            <p><strong>Age:</strong> <span id="age"></span></p>
+            <p><strong>Sex:</strong> <span id="sex"></span></p>
+            <p><strong>Chest Pain Type:</strong> <span id="chestPainType"></span></p>
+            <p><strong>Resting Blood Pressure:</strong> <span id="restingBP"></span></p>
+            <p><strong>Resting ECG:</strong> <span id="restingECG"></span></p>
+            <p><strong>Maximum Heart Rate:</strong> <span id="maxHR"></span></p>
+            <p><strong>Exercise Angina:</strong> <span id="exerciseAngina"></span></p>
+            <p><strong>Oldpeak:</strong> <span id="oldpeak"></span></p>
+            <p><strong>ST Slope:</strong> <span id="stSlope"></span></p>
+            <p><strong>SLP:</strong> <span id="slp"></span></p>
+            <p><strong>CAA:</strong> <span id="caa"></span></p>
+            <p><strong>Thallium Stress Test (Thall):</strong> <span id="thall"></span></p>
+
+            <h3>Prediction Results</h3>
+            <p><strong>Prediction:</strong> <span id="prediction"></span></p>
+            <p><strong>Top Risk Factor:</strong> <span id="risk-factor"></span></p>
+            <p><strong>Health Suggestion:</strong> <span id="suggestion"></span></p>
+        </div>
+
+        <div id="appointmentLink" style="display: none;">
+            <a href="https://www.practo.com/hyderabad/cardiologist" target="_blank">Book Doctor Appointment</a><br>
+        </div>
+
+        <a href="form.html">Back to Home</a><br>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+
+        // Fill patient data
+        document.getElementById("age").innerText = params.get("Age_In_Days");
+        document.getElementById("sex").innerText = params.get("Sex");
+        document.getElementById("chestPainType").innerText = params.get("ChestPainType");
+        document.getElementById("restingBP").innerText = params.get("RestingBP");
+        document.getElementById("restingECG").innerText = params.get("RestingECG");
+        document.getElementById("maxHR").innerText = params.get("MaxHR");
+        document.getElementById("exerciseAngina").innerText = params.get("ExerciseAngina");
+        document.getElementById("oldpeak").innerText = params.get("Oldpeak");
+        document.getElementById("stSlope").innerText = params.get("ST_Slope");
+        document.getElementById("slp").innerText = params.get("slp");
+        document.getElementById("caa").innerText = params.get("caa");
+        document.getElementById("thall").innerText = params.get("thall");
+
+        const prediction = params.get("prediction");
+
+        // Show prediction result
+        document.getElementById("prediction").innerText =
+            prediction === "1" ? "❗ Heart Disease Detected" : "✅ No Heart Disease";
+
+        // Conditional rendering for risk info and appointment link
+        if (prediction === "1") {
+            document.getElementById("risk-factor").innerText = params.get("risk_factor");
+            document.getElementById("suggestion").innerText = params.get("suggestion");
+            document.getElementById("appointmentLink").style.display = "block";
+        } else {
+            document.getElementById("risk-factor").innerText = "N/A";
+            document.getElementById("suggestion").innerText = "N/A";
+        }
+    </script>
+</body>
+</html>
